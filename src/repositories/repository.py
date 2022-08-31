@@ -3,17 +3,30 @@ from typing import Optional
 from uuid import UUID
 import inject
 from aiopg.sa import Engine
-from sqlalchemy import select, insert
-from psycopg2.errors import UniqueViolation
+from sqlalchemy import select, desc
+from psycopg2.errors import UniqueViolation, ForeignKeyViolation
+from utils import exceptions
+
+from .db_models import (
+    users,
+    messages
+)
 
 from models import (
     User,
     AuthDataModel,
+    MessageModel,
+    MessageModelInner
 )
 
-from .db_models import (
-    users
-)
+
+REPOSITORY: Optional['Repository'] = None
+
+def get_repository() -> 'Repository':
+    global REPOSITORY
+    if REPOSITORY is None:
+        REPOSITORY = Repository()
+    return REPOSITORY
 
 class Repository:
     @inject.autoparams()
@@ -43,3 +56,36 @@ class Repository:
             result = await conn.execute(query)
             result = await result.fetchone()
         return User.from_row(**result)
+
+    async def get_user_by_name(self, name: str) -> Optional[User]:
+        query = select(
+            [
+                users
+            ]
+        ).where(users.c.name == name)
+        async with self._db.acquire() as conn:
+            result = await conn.execute(query)
+            if result.rowcount:
+                return User.from_row(**(await result.fetchone()))
+        return None
+
+    async def post_message(self, message: MessageModelInner) -> bool:
+        query = messages.insert().values([message.__dict__])
+        async with self._db.acquire() as conn:
+            try:
+                await conn.execute(query)
+            except ForeignKeyViolation:
+                raise exceptions.NonExistentSenderName
+        return True
+
+    async def get_last_messages(self, count: int) -> list[MessageModel]:
+        query = select(
+            [
+                messages.c.name,
+                messages.c.message
+            ]
+        ).limit(count).order_by(desc(messages.c.timestamp))
+
+        async with self._db.acquire() as conn:
+            result = await conn.execute(query)
+            return [MessageModel(**row) for row in (await result.fetchall())]

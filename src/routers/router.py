@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from services import Service, get_service
+from utils import auth
 from models import (
     RegisterDataModel,
     AuthDataModel,
     TokenAnswerModel,
     MessageModel,
+    User,
 )
 
 
@@ -15,7 +17,7 @@ router = APIRouter()
 async def post_register(
     register_data: RegisterDataModel,
     service: Service = Depends(get_service)
-) -> str:
+) -> str:  # TODO: сделать понятный сваггер
     return await service.register_user(register_data)
 
 
@@ -29,6 +31,8 @@ async def post_auth(
 
 @router.post("/send_message")
 async def post_send(
-    mesage: MessageModel
+    message: MessageModel,
+    service: Service = Depends(get_service),
+    _: User = Depends(auth.auth_user)
 ):
-    pass
+    return await service.send_message_parse(message)

@@ -1,6 +1,8 @@
 from typing import Optional
 from uuid import UUID, uuid4
+from datetime import datetime
 from pydantic import BaseModel, Field
+from dataclasses import dataclass
 
 
 class RegisterDataModel(BaseModel):
@@ -26,6 +28,18 @@ class TokenAnswerModel(BaseModel):
 class MessageModel(BaseModel):
     name: str
     message: str
+
+    @classmethod
+    def from_row(cls, **kwargs):
+        return cls(**kwargs)
+
+
+@dataclass
+class MessageModelInner:
+    id: UUID
+    name: str
+    message: str
+    timestamp: datetime
 
 
 class User(BaseModel):

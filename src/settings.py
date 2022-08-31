@@ -5,7 +5,6 @@ from os import environ
 load_dotenv()
 
 
-@dataclass
 class Settings:
     PG_HOST: str = environ.get('PG_HOST')
     PG_PORT: str = environ.get('PG_PORT')
@@ -15,6 +14,7 @@ class Settings:
     TEST_DB: str = environ.get('TEST_DB')
 
     JWT_SECRET_KEY: str = environ.get('JWT_SECRET_KEY')
+    JWT_ALGORITHM: str = 'HS256'
 
     @classmethod
     def get_db_sync_url(cls) -> str:
