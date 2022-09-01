@@ -15,6 +15,7 @@ alembic = "*"
 inject = "*"
 aiopg = "*"
 pyjwt = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 
