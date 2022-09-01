@@ -11,17 +11,16 @@ from httpx import AsyncClient
 from settings import Settings
 
 from datetime import datetime, timedelta
-
 from utils import auth
 import utils_for_test as ut
 
 from repositories import Repository
+from services import Service
 from models import (
     User,
     MessageModel,
     MessageModelInner,
 )
-
 
 
 @pytest.fixture(scope="session")
@@ -88,6 +87,11 @@ def repository(test_db: Engine) -> Repository:
 
 
 @pytest.fixture
+def service(repository: Repository) -> Service:
+    return Service(repository)
+
+
+@pytest.fixture
 def sample_user() -> User:
     return User(
         name=ut.generate_random_string(),
@@ -146,6 +150,31 @@ async def inserted_users(
             await conn.execute(users.delete())
 
 
+@pytest_asyncio.fixture
+async def registered_user(
+    sample_user: User,
+    test_db: Engine
+) -> User:
+    encoded_model = User(
+        id=sample_user.id,
+        name=sample_user.name,
+        password=auth.get_password_hash(sample_user.password)
+    )
+    async with test_db.acquire() as conn:
+        await conn.execute(
+            users.insert().values(
+                [
+                    encoded_model.dict()
+                ]
+            )
+        )
+    yield sample_user
+    async with test_db.acquire() as conn:
+        async with conn.begin():
+            await conn.execute(messages.delete())
+            await conn.execute(users.delete())
+
+
 @pytest.fixture
 def sample_messages(inserted_users: list[User]) -> list[MessageModel]:
     return [
@@ -173,7 +202,7 @@ def sample_messages_inner(sample_messages: list[MessageModel]) -> list[MessageMo
 async def inserted_messages(
     sample_messages_inner: list[MessageModelInner],
     test_db: Engine
-):
+) -> list[MessageModelInner]:
     async with test_db.acquire() as conn:
         await conn.execute(
             messages.insert().values(

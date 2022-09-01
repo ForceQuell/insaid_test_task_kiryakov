@@ -32,8 +32,9 @@ def get_service() -> 'Service':
     return SERVICE
 
 
-@inject.autoparams()
+
 class Service:
+    @inject.autoparams()
     def __init__(
         self,
         repository: Repository
