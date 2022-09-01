@@ -16,6 +16,8 @@ inject = "*"
 aiopg = "*"
 pyjwt = "*"
 pytest-asyncio = "*"
+httpx = "*"
+requests = "*"
 
 [dev-packages]
 

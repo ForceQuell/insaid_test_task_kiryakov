@@ -67,5 +67,6 @@ class Service:
                 message=message.message,
                 timestamp=datetime.now()
             )
-            await self._repository.post_message(message=message_inner)
+            if not (await self._repository.post_message(message=message_inner)):
+                raise exceptions.NonExistentSenderName
             return True
