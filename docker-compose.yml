@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    image: forcequell/insaid_test_task_kiryakov
+    ports:
+      - "80:80"
+    networks:
+      - default
+    links:
+      - postgres_service:postgres_service
+    environment:
+      - PG_HOST=postgres_service
+      - PG_PORT=5432
+      - PG_USER=insaid_user
+      - PG_DB=insaid_db
+      - PG_PASS=pK0xng
+      - JWT_SECRET_KEY=2WLOGW
+      - IGNORE_DOTENV=1
+    depends_on:
+      postgres_service:
+          condition: service_healthy
+
+  postgres_service:
+    image: postgres:13-alpine
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+    volumes:
+      - pg_sql_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=pK0xng
+      - POSTGRES_USER=insaid_user
+      - POSTGRES_DB=insaid_db
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pg_sql_data:
+    driver: local
+
+networks:
+  default:

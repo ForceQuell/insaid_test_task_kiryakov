@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from dotenv import load_dotenv
 from os import environ
 
-load_dotenv()
+
+if not environ.get("IGNORE_DOTENV"):
+    load_dotenv()
 
 
 class Settings:
@@ -11,7 +13,7 @@ class Settings:
     PG_USER: str = environ.get('PG_USER')
     PG_DB: str = environ.get('PG_DB')
     PG_PASS: str = environ.get('PG_PASS')
-    TEST_DB: str = environ.get('TEST_DB')
+    TEST_DB: str = environ.get('TEST_DB', default='test_db')
 
     JWT_SECRET_KEY: str = environ.get('JWT_SECRET_KEY')
     JWT_ALGORITHM: str = 'HS256'
