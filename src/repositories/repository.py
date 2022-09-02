@@ -1,11 +1,9 @@
 from os import access
 from typing import Optional
-from uuid import UUID
 import inject
 from aiopg.sa import Engine
 from sqlalchemy import select, desc, and_
 from psycopg2.errors import UniqueViolation, ForeignKeyViolation
-from utils import exceptions
 
 from .db_models import (
     users,
@@ -19,7 +17,7 @@ from models import (
     MessageModelInner
 )
 
-
+# сиглтон репозитория (репозиторий - сборник методов для взаимодействием с БД)
 REPOSITORY: Optional['Repository'] = None
 
 def get_repository() -> 'Repository':

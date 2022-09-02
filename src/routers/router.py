@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from services import Service, get_service
 from utils import auth
 from models import (
@@ -13,11 +13,17 @@ from models import (
 router = APIRouter()
 
 
+"""
+Механизм Depends в fastapi вызывает указанный метод
+и расширяет требования эндпоинта на набор аргументов, указанных в этом методе
+"""
+
+
 @router.post("/register")
 async def post_register(
     register_data: RegisterDataModel,
     service: Service = Depends(get_service)
-) -> str:  # TODO: сделать понятный сваггер
+) -> str:
     return await service.register_user(register_data)
 
 

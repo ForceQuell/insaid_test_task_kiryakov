@@ -2,6 +2,8 @@ from curses.ascii import HT
 from fastapi import HTTPException
 
 
+# сборник кастомных http-ошибок
+
 class UserNameAlreadyExists(HTTPException):
     def __init__(self, message='Such name already exists', status_code=400) -> None:
         super().__init__(

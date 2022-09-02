@@ -22,6 +22,7 @@ from models import (
 history_command_pattern = compile(r'^history\ \d+')
 
 
+# сиглтон объекта сервиса (под сервисом тут имеется в виду слой логики)
 SERVICE: Optional['Service'] = None
 
 
@@ -30,7 +31,6 @@ def get_service() -> 'Service':
     if SERVICE is None:
         SERVICE = Service()
     return SERVICE
-
 
 
 class Service:

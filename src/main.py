@@ -11,13 +11,18 @@ from routers.router import router
 from repositories import Repository
 
 
+# движок подключения к БД
 engine: Optional[Engine] = None
 
 
+# инстанс приложения
 app = FastAPI()
+
+# добавляем роутер
 app.include_router(router)
 
 
+# переопределение стандартной ошибки валидации, чтобы отдавать 401 если не передан jwt-токен
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     # Get the original 'detail' list of errors
@@ -37,15 +42,23 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
+# конфиг соответствий тип -> объект
+# Работает следующим образом:
+#   Если использовать декоратор @inject.autoparams() над методом или классом
+#   то при использовании (вызове метода/создания экземпляра класса) inject
+#   автоматически подставит нужный объект в аргументы в зависимости от типа.
 def config(binder):
     global engine
     repo = Repository(engine)
+
+    # -----------тип----объект
     binder.bind(Engine, engine)
     binder.bind(Repository, repo)
 
 
 @app.on_event('startup')
 async def startup_event():
+    # при старте приложения инициализируем движок подключения к БД
     global engine
     engine = await create_engine(
         host=Settings.PG_HOST,
@@ -54,6 +67,8 @@ async def startup_event():
         dbname=Settings.PG_DB,
         password=Settings.PG_PASS
     ).__aenter__()
+
+    # "применить конфиг"
     inject.configure(config)
 
 
@@ -61,3 +76,10 @@ async def startup_event():
 async def shutdown_event():
     global engine
     await engine.__aexit__(None, None, None)
+
+"""
+В целом, идея -- реализовать архитектуру сервиса,
+разделенную на 3 слоя:
+    роутер -> логика -> инфраструктура(методы взаимодействия с БД или иными источниками),
+которую можно будет легко масштабировать и тестировать.
+"""

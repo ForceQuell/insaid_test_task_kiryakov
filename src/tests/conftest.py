@@ -23,6 +23,7 @@ from models import (
 )
 
 
+# event loop, нужен для создания асинхронного окружения движка БД 
 @pytest.fixture(scope="session")
 def event_loop(request):
     loop = asyncio.get_event_loop_policy().new_event_loop()
@@ -30,6 +31,7 @@ def event_loop(request):
     loop.close()
 
 
+# фикстура, возвращающая объект подключения к БД
 @pytest_asyncio.fixture(scope="session")
 async def test_db(event_loop) -> Engine:
     Settings.PG_DB = Settings.TEST_DB
@@ -49,19 +51,7 @@ async def test_db(event_loop) -> Engine:
             metadata.drop_all(sync_conn)
 
 
-@pytest_asyncio.fixture(scope="session")
-async def engine_for_sql(event_loop) -> Engine:
-    Settings.PG_DB = Settings.TEST_DB
-    async with create_engine(
-            user=Settings.PG_USER,
-            password=Settings.PG_PASS,
-            host=Settings.PG_HOST,
-            port=Settings.PG_PORT,
-            dbname=Settings.PG_DB,
-    ) as engine:
-        yield engine
-
-
+# инициализация приложения, нужно для тестирования роутов
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def init_app():
     Settings.PG_DB = Settings.TEST_DB
@@ -70,26 +60,26 @@ async def init_app():
     await shutdown_event()
 
 
-@pytest_asyncio.fixture(scope="session")
-async def client():
-    return TestClient(app)
-
-
+# фикстура, возвращающая объект приложения
 @pytest_asyncio.fixture(scope="session")
 async def async_client():
     async with AsyncClient(app=app, base_url="http://testserver") as async_client:
         yield async_client
 
 
+# фикстура репозитория
 @pytest.fixture
 def repository(test_db: Engine) -> Repository:
     return Repository(test_db)
 
 
+# фикстура сервиса
 @pytest.fixture
 def service(repository: Repository) -> Service:
     return Service(repository)
 
+
+# ----- различные фикстуры для создания необходимых условий тестирования -----
 
 @pytest.fixture
 def sample_user() -> User:

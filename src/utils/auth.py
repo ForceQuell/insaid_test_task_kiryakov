@@ -7,6 +7,9 @@ from utils import exceptions
 from repositories import Repository, get_repository
 
 
+# сборник методов, связанных с регистрацией/авторизацией пользователя
+
+
 def user_to_jwt(user: User) -> str:
     return jwt.encode(
         payload={"name": user.name},
