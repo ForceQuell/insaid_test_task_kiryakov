@@ -127,6 +127,7 @@ async def inserted_user(
     yield sample_user
     async with test_db.acquire() as conn:
         async with conn.begin():
+            await conn.execute(messages.delete())
             await conn.execute(users.delete())
 
 
@@ -173,6 +174,11 @@ async def registered_user(
         async with conn.begin():
             await conn.execute(messages.delete())
             await conn.execute(users.delete())
+
+
+@pytest.fixture
+def inserted_user_token(inserted_user: User) -> tuple[User, str]:
+    return inserted_user, auth.user_to_jwt(inserted_user)
 
 
 @pytest.fixture
