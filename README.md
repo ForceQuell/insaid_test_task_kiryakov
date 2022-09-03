@@ -1,8 +1,9 @@
 # Тестовое задание Кирьяков П.А.
 
 Тестовый проект, реализующий следующий функционал:
-* регистрацию пользователей
-* отправку сообщения
+* регистрацию пользователей;
+* отправку сообщения от авторизованных пользователей;
+* вывод последних n сообщений;
 
 
 ## Требования
@@ -19,23 +20,12 @@
 ```bash
 pipenv install
 ```
-2) Создать две базы данных (основная и тестовая):
-
-от имени юзера postgres выполнить:
-```bash
-psql
-CREATE ROLE <username> WITH '<password>';
-CREATE DATABASE <main db name>;
-CREATE DATABASE <test db name>;
-GRANT ALL PRIVILEGES ON DATABASE <main db name> TO <username>;
-GRANT ALL PRIVILEGES ON DATABASE <test db name> TO <username>;
-ALTER ROLE "<username>" WITH LOGIN;
-```
+2) Создать две базы данных (основная и тестовая)
 
 3) В корне проекта создать файл .env, заполнить его подобно файлу .env.example
 
-4) Активировать виртуальное окружение:
-из корня проекта выполнить команду:
+4) Активировать виртуальное окружение.
+Из корня проекта выполнить команду:
 ```bash
 pipenv shell
 ```
@@ -68,4 +58,19 @@ chmod +x test.sh
 2) Запустить:
 ```bash
 ./test.sh
+```
+
+
+## Запуск из докера
+
+### Требования
+* docker 20.10
+* docker-compose 1.29
+
+0) Склонировать образ приложения
+https://hub.docker.com/repository/docker/forcequell/insaid_test_task_kiryakov
+
+1) Запустить
+```bash
+sudo docker-compose up
 ```

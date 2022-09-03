@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from typing import Union
 from services import Service, get_service
 from utils import auth
 from models import (
@@ -35,7 +36,7 @@ async def post_auth(
     return await service.auth(auth_data)
 
 
-@router.post("/send_message")
+@router.post("/send_message", response_model=Union[list[MessageModel], bool])
 async def post_send(
     message: MessageModel,
     service: Service = Depends(get_service),
