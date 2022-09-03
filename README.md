@@ -9,11 +9,11 @@
 ## Требования
 * python3.10
 * pipenv
-* postgresql
+* postgresql 13
 
   (тестировалось на ubuntu20.04)
 
-## Как развернуть:
+## Как развернуть
 
 0) Склонировать проект
 1) Создать виртуальное окружение: выполнять команду из корня проекта:
@@ -74,3 +74,5 @@ https://hub.docker.com/repository/docker/forcequell/insaid_test_task_kiryakov
 ```bash
 sudo docker-compose up
 ```
+
+Приложен файл с примерами запросов: sample_requests.sh
