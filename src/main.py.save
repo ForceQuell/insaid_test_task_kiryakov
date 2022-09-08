@@ -1,8 +1,0 @@
-from fastapi import FastApi
-import inject
-from aiopg.sa import Engine, create_engine
-
-from settings import Settings
-
-
-engine: Optional[Engine]
